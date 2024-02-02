@@ -1,0 +1,5 @@
+[project]
+name = "trflow"
+version = "0.0.1"
+description = "Helper functions for performing a variety of tandem repeat analysis tasks"
+authors = ["Egor Dolzhenko <edolzhenko@pacificbiosciences.com>"]
