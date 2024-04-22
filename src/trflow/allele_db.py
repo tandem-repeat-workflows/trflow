@@ -1,4 +1,5 @@
 import gzip
+import subprocess
 
 
 def get_info_tags(line):
@@ -54,7 +55,7 @@ def get_alleles(vcf_path):
             yield locus, alleles, info_tags
 
 
-def create_allele_db(manifest, db_path):
+def create_allele_db(manifest, db_path, threads=1):
     r"""Generate an allele database
 
     Parameters
@@ -76,3 +77,15 @@ def create_allele_db(manifest, db_path):
                 alleles = ",".join(alleles)
                 alid = tags["AL"]
                 file.write(f"{trid}\t{sample}\t{alid}\t{alleles}\n".encode("utf-8"))
+
+    db_stream = subprocess.Popen(["gunzip", "-c", db_path], stdout=subprocess.PIPE)
+    sort_stream = subprocess.Popen(
+        ["sort", "--parallel", threads, "-k", "1,1"],
+        stdin=db_stream.stdout,
+        stdout=subprocess.PIPE,
+    )
+    sorted_db_path = db_path + ".sorted"
+    with open(sorted_db_path, "w") as outfile:
+        subprocess.run(["gzip"], stdin=sort_stream, stdout=outfile)
+
+    subprocess.run(["mv", sorted_db_path, db_path])
