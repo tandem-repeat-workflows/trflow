@@ -11,7 +11,7 @@ def get_info_tags(line):
     return {tag: val for tag, val in zip(tags, vals)}
 
 
-def get_alleles(vcf_path, tags):
+def get_alleles(vcf_path):
     with gzip.open(vcf_path, "rb") as file:
         for line in file:
             line = line.decode("utf8")
@@ -48,11 +48,10 @@ def get_alleles(vcf_path, tags):
                 continue
             else:
                 assert False, gt
-            info = dict()
-            for tag in tags:
-                info[tag] = get_info_tags(line, tag)
 
-            yield locus, alleles, info
+            info_tags = get_info_tags(line)
+
+            yield locus, alleles, info_tags
 
 
 def create_allele_db(manifest, db_path):
