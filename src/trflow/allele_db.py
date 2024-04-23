@@ -55,7 +55,7 @@ def get_alleles(vcf_path):
             yield locus, alleles, info_tags
 
 
-def create_allele_db(manifest, db_path, threads=1):
+def create_allele_db(manifest, db_path, sort_threads=1):
     r"""Generate an allele database
 
     Parameters
@@ -64,6 +64,8 @@ def create_allele_db(manifest, db_path, threads=1):
         A dictionary where keys are sample names and values are paths to TRGT VCFs
     db_path : str
         A path to the allele db file
+    sort_threads : int
+        Number of threads used for sorting
 
     Examples
     --------
@@ -75,12 +77,11 @@ def create_allele_db(manifest, db_path, threads=1):
         for sample, vcf_path in manifest.items():
             for trid, alleles, tags in get_alleles(vcf_path):
                 alleles = ",".join(alleles)
-                alid = tags["AL"]
-                file.write(f"{trid}\t{sample}\t{alid}\t{alleles}\n".encode("utf-8"))
+                file.write(f"{trid}\t{sample}\t{alleles}\n".encode("utf-8"))
 
     db_stream = subprocess.Popen(["gunzip", "-c", db_path], stdout=subprocess.PIPE)
     sort_stream = subprocess.Popen(
-        ["sort", "--parallel", threads, "-k", "1,1"],
+        ["sort", "--parallel", str(sort_threads), "-k", "1,1"],
         stdin=db_stream.stdout,
         stdout=subprocess.PIPE,
     )
