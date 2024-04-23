@@ -87,7 +87,7 @@ def create_allele_db(manifest, db_path, sort_threads=1):
     )
     sorted_db_path = db_path + ".sorted"
     with open(sorted_db_path, "wb") as outfile:
-        gzip = subprocess.Popen("gzip", stdin=sort_stream.stdout, stdout=outfile)
-    gzip.wait()
+        gzip_stream = subprocess.Popen("gzip", stdin=sort_stream.stdout, stdout=outfile)
+    gzip_stream.wait()
 
     subprocess.run(["mv", sorted_db_path, db_path])
